@@ -1,6 +1,8 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize(process.env.POSGRE_URL);
 const useBcrypt = require("sequelize-bcrypt");
+const Job = require("./job");
+
 const User = sequelize.define(
   "User",
   {
@@ -46,5 +48,8 @@ useBcrypt(User, {
   rounds: 12,
   compare: "authenticate",
 });
-// syncTable();
+
+syncTable();
+// User.hasMany(Job, { foreignKey: "userId" });
+// Job.belongsTo(User);
 module.exports = User;

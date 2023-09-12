@@ -1,4 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
+const Job = require("../models/job");
 const getAllJob = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "all job", user: req.user });
 };
