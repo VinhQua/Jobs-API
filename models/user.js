@@ -49,7 +49,7 @@ useBcrypt(User, {
   compare: "authenticate",
 });
 
-syncTable();
-// User.hasMany(Job, { foreignKey: "userId" });
-// Job.belongsTo(User);
+// syncTable();
+User.hasMany(Job);
+Job.belongsTo(User);
 module.exports = User;

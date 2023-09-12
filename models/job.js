@@ -32,7 +32,7 @@ const Job = sequelize.define(
     },
     status: {
       type: DataTypes.STRING,
-      allowNull: false,
+
       validate: {
         isIn: {
           args: [["pending", "interview", "declined"]],
@@ -41,8 +41,14 @@ const Job = sequelize.define(
       },
       defaultValue: "pending",
     },
-    userId: {
+    UserId: {
+      allowNull: false,
       type: DataTypes.INTEGER,
+      validate: {
+        notEmpty: {
+          msg: "Please enter an user Id",
+        },
+      },
       references: {
         model: "user",
         key: "id",
@@ -55,6 +61,6 @@ const syncTable = async () => {
   await Job.sync({ alter: true });
 };
 
-syncTable();
+// syncTable();
 
 module.exports = Job;

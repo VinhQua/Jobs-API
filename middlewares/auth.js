@@ -11,11 +11,8 @@ const authMiddleware = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findAll({
-      attributes: { exclude: ["password"] },
-      where: { id: decoded.userID },
-    });
-    req.user = user;
+    console.log(decoded);
+    req.user = { id: decoded.userID, userName: decoded.userName };
     next();
   } catch (error) {
     throw new Unauthenticated(`Invalid or Expired Token`);
