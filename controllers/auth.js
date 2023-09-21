@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const { BadRequest, Unauthenticated, NotFound } = require("../errors");
+const jwt = require("jsonwebtoken")
 const { StatusCodes } = require("http-status-codes");
 const jwt = require("jsonwebtoken");
 const { where } = require("sequelize");
