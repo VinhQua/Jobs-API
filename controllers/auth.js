@@ -1,7 +1,8 @@
 const User = require("../models/user");
-const { BadRequest, Unauthenticated } = require("../errors");
+const { BadRequest, Unauthenticated, NotFound } = require("../errors");
 const { StatusCodes } = require("http-status-codes");
 const jwt = require("jsonwebtoken");
+const { where } = require("sequelize");
 const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -29,6 +30,33 @@ const register = async (req, res) => {
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_LIFETIME }
   );
-  res.status(StatusCodes.CREATED).json({ userName: user.name, token });
+  res.status(StatusCodes.CREATED).json({
+    user: {
+      name: user.name,
+      lastName: user.lastName,
+      location: user.location,
+      email: user.email,
+      token,
+    },
+  });
 };
-module.exports = { login, register };
+const update = async (req, res) => {
+  console.log(req.user);
+  const { id } = req.user;
+  const user = await User.update(req.body, { where: { id: id } });
+  const updatedUser = await User.findByPk(id);
+  if (!user[0]) {
+    throw new NotFound(`no user with id ${id}`);
+  }
+  // const token = user.Create
+  res.status(StatusCodes.OK).json({
+    user: {
+      name: updatedUser.name,
+      lastName: updatedUser.lastName,
+      location: updatedUser.location,
+      email: updatedUser.email,
+    },
+  });
+};
+
+module.exports = { login, register, update };

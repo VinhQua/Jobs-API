@@ -13,6 +13,34 @@ const User = sequelize.define(
         notEmpty: { msg: "Please enter a username" },
       },
     },
+    lastName: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      validate: {
+        len: {
+          args: [1, 20],
+          msg: `maximum is 20 characters`,
+        },
+      },
+      defaultValue: "last name",
+      set(value) {
+        this.setDataValue("lastName", value.trim());
+      },
+    },
+    location: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      validate: {
+        len: {
+          args: [1, 20],
+          msg: `maximum is 20 characters`,
+        },
+      },
+      defaultValue: "my city",
+      set(value) {
+        this.setDataValue("location", value.trim());
+      },
+    },
     email: {
       type: DataTypes.STRING,
       unique: { msg: "Please enter a unique email" },
