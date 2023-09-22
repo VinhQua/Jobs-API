@@ -1,9 +1,16 @@
 const { StatusCodes } = require("http-status-codes");
 const Job = require("../models/job");
 const { NotFound, BadRequest } = require("../errors");
+const User = require("../models/user");
 const getAllJob = async (req, res) => {
   const UserId = req.user.id;
-  const jobs = await Job.findAll({ include: "User", where: { UserId } });
+  const jobs = await Job.findAll({
+    include: {
+      model: User,
+      attributes: { exclude: ["password", "token", "updatedAt"] },
+    },
+    where: { UserId },
+  });
   res.status(StatusCodes.OK).json({ success: true, amount: jobs.length, jobs });
 };
 const getSingleJob = async (req, res) => {

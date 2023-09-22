@@ -2,7 +2,8 @@ const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize(process.env.POSGRE_URL);
 const useBcrypt = require("sequelize-bcrypt");
 const Job = require("./job");
-
+const jwt = require("jsonwebtoken");
+const { hash } = require("bcryptjs");
 const User = sequelize.define(
   "User",
   {
@@ -63,10 +64,27 @@ const User = sequelize.define(
       allowNull: false,
       validate: {
         notEmpty: { msg: "Please enter a password" },
+        len: {
+          args: [6],
+          msg: `password requires at least 6 characters`,
+        },
+      },
+    },
+    token: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return jwt.sign(
+          { userID: this.id, userName: this.name },
+          process.env.JWT_SECRET,
+          { expiresIn: process.env.JWT_LIFETIME }
+        );
       },
     },
   },
-  { tableName: "user", modelName: "User" }
+  {
+    tableName: "user",
+    modelName: "User",
+  }
 );
 const syncTable = async () => {
   await User.sync({ alter: true });
@@ -77,7 +95,7 @@ useBcrypt(User, {
   compare: "authenticate",
 });
 
-// syncTable();
+syncTable();
 User.hasMany(Job);
 Job.belongsTo(User);
 module.exports = User;
