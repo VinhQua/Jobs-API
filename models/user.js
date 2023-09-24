@@ -95,7 +95,7 @@ useBcrypt(User, {
   compare: "authenticate",
 });
 
-syncTable();
+// syncTable();
 User.hasMany(Job);
 Job.belongsTo(User);
 module.exports = User;
