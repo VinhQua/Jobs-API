@@ -3,6 +3,7 @@ const Job = require("../models/job");
 const { NotFound, BadRequest } = require("../errors");
 const User = require("../models/user");
 const { Op } = require("sequelize");
+const { sequelize } = require("../db/connectDB");
 const getAllJob = async (req, res) => {
   let queryObject = { UserId: req.user.id };
   const { status, position, search, company, sort } = req.query;
@@ -96,4 +97,30 @@ const deleteJob = async (req, res) => {
   }
   res.status(StatusCodes.OK).json({ msg: "job deleted" });
 };
-module.exports = { getAllJob, getSingleJob, createJob, updateJob, deleteJob };
+const showStats = async (req, res) => {
+  const UserId = req.user.id;
+  let stats = await Job.findAll({
+    group: ["status"],
+    attributes: ["status", [sequelize.fn("COUNT", "status"), "count"]],
+    where: { UserId: UserId },
+  });
+
+  stats = stats.reduce((acc, curr) => {
+    const { status, count } = curr.dataValues;
+
+    acc[status] = Number(count);
+    console.log(acc);
+    return acc;
+  }, {});
+
+  res.status(StatusCodes.OK).json({ stats });
+};
+
+module.exports = {
+  showStats,
+  getAllJob,
+  getSingleJob,
+  createJob,
+  updateJob,
+  deleteJob,
+};

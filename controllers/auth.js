@@ -45,8 +45,11 @@ const update = async (req, res) => {
   console.log(req.user);
   const { id } = req.user;
   const { password } = req.body;
-  const salt = await genSalt(12);
-  req.body.password = await hash(password, salt);
+  if (password) {
+    const salt = await genSalt(12);
+    req.body.password = await hash(password, salt);
+  }
+
   const user = await User.update(req.body, { where: { id: id } });
   const updatedUser = await User.findByPk(id);
   if (!user[0]) {
