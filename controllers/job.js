@@ -4,6 +4,7 @@ const { NotFound, BadRequest } = require("../errors");
 const User = require("../models/user");
 const { Op } = require("sequelize");
 const { sequelize } = require("../db/connectDB");
+const moment = require("moment/moment");
 const getAllJob = async (req, res) => {
   let queryObject = { UserId: req.user.id };
   const { status, position, search, company, sort } = req.query;
@@ -109,11 +110,36 @@ const showStats = async (req, res) => {
     const { status, count } = curr.dataValues;
 
     acc[status] = Number(count);
-    console.log(acc);
     return acc;
   }, {});
 
-  res.status(StatusCodes.OK).json({ stats });
+  let monthLyApplications = await Job.findAll({
+    where: {
+      UserId: UserId,
+    },
+    order: [["month", "DESC"]],
+    attributes: [
+      [sequelize.fn("DATE_TRUNC", "year", sequelize.col("createdAt")), "year"],
+      [
+        sequelize.fn("DATE_TRUNC", "month", sequelize.col("createdAt")),
+        "month",
+      ],
+      [sequelize.literal(`COUNT(*)`), "count"],
+    ],
+    group: ["month", "year"],
+  });
+
+  monthLyApplications = monthLyApplications
+    .map((item) => {
+      let { year, month, count } = item.dataValues;
+      year = year.getFullYear();
+      month = month.getMonth();
+      const date = moment().month(month).year(year).format("MMM Y");
+      return { date, count };
+    })
+    .slice(0, 6)
+    .reverse();
+  res.status(StatusCodes.OK).json({ stats, monthLyApplications });
 };
 
 module.exports = {
